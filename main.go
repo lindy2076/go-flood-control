@@ -2,10 +2,51 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"strconv"
+	fc "task/floodControl"
+
+	"github.com/redis/go-redis/v9"
 )
 
-func main() {
+var (
+	FC_REDIS_HOST     = os.Getenv("FC_REDIS_HOST")
+	FC_REDIS_PORT     = os.Getenv("FC_REDIS_PORT")
+	FC_REDIS_PASSWORD = os.Getenv("FC_REDIS_PASSWORD")
+	FC_RETENTION      = StrToUInt(os.Getenv("FC_RETENTION"), 10)
+	FC_MAXCHECKS      = StrToUInt(os.Getenv("FC_MAXCHECKS"), 10)
+)
 
+func StrToUInt(s string, def_val uint64) uint64 {
+	if i, err := strconv.ParseUint(s, 10, 64); err == nil {
+		return i
+	}
+	return def_val
+}
+
+func main() {
+	fmt.Println("hello", FC_REDIS_HOST, FC_REDIS_PORT, FC_REDIS_PASSWORD)
+	redisClient := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%s", FC_REDIS_HOST, FC_REDIS_PORT),
+		Password: FC_REDIS_PASSWORD,
+		DB:       0,
+	})
+	ctx := context.Background()
+	if err := redisClient.Ping(ctx).Err(); err != nil {
+		panic(err)
+	}
+	var rfc FloodControl = &fc.RedisFloodController{
+		Client:           redisClient,
+		RetentionSeconds: FC_RETENTION,
+		MaxChecks:        FC_MAXCHECKS,
+	}
+
+	v, err := rfc.Check(ctx, 0)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(v)
 }
 
 // FloodControl интерфейс, который нужно реализовать.
