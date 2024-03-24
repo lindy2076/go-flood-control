@@ -15,8 +15,18 @@ type RedisFloodController struct {
 	MaxChecks        uint64
 }
 
+type Clock interface {
+	Now() time.Time
+}
+
+type realClock struct{}
+
+func (*realClock) Now() time.Time { return time.Now() }
+
+var clock Clock = &realClock{}
+
 func (rfc *RedisFloodController) Check(ctx context.Context, userID int64) (bool, error) {
-	timestamp := time.Now().UnixMilli()
+	timestamp := clock.Now().UnixMilli()
 	fromTimestamp := timestamp - int64(rfc.RetentionSeconds)*1000
 
 	_, err := rfc.Client.TSAddWithArgs(ctx, strconv.Itoa(int(userID)), timestamp, 1, &redis.TSOptions{
@@ -40,7 +50,6 @@ func (rfc *RedisFloodController) Check(ctx context.Context, userID int64) (bool,
 	}
 
 	var lastChunk redis.TSTimestampValue = val[0]
-	fmt.Println(lastChunk.Value, rfc.MaxChecks)
 	if uint64(lastChunk.Value) > rfc.MaxChecks {
 		return false, fmt.Errorf("max checks exceeded")
 	}
