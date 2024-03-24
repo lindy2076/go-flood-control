@@ -26,7 +26,7 @@ func StrToUInt(s string, def_val uint64) uint64 {
 }
 
 func main() {
-	fmt.Println("hello", FC_REDIS_HOST, FC_REDIS_PORT, FC_REDIS_PASSWORD)
+	fmt.Println("Test application", FC_REDIS_HOST, FC_REDIS_PORT, FC_REDIS_PASSWORD)
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", FC_REDIS_HOST, FC_REDIS_PORT),
 		Password: FC_REDIS_PASSWORD,
@@ -42,11 +42,16 @@ func main() {
 		MaxChecks:        FC_MAXCHECKS,
 	}
 
-	v, err := rfc.Check(ctx, 0)
-	if err != nil {
-		panic(err)
+	fmt.Printf("MaxChecks: %d\n", FC_MAXCHECKS)
+
+	for i := 0; i < 20; i++ {
+		v, err := rfc.Check(ctx, 0)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println(v)
+		// time.Sleep(time.Millisecond * 5)
 	}
-	fmt.Println(v)
 }
 
 // FloodControl интерфейс, который нужно реализовать.
