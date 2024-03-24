@@ -26,7 +26,9 @@ func StrToUInt(s string, def_val uint64) uint64 {
 }
 
 func main() {
-	fmt.Println("Test application", FC_REDIS_HOST, FC_REDIS_PORT, FC_REDIS_PASSWORD)
+	fmt.Printf("Some debug info. Redis host: %s, port: %s, pswd: %s\n",
+		FC_REDIS_HOST, FC_REDIS_PORT, FC_REDIS_PASSWORD)
+
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%s", FC_REDIS_HOST, FC_REDIS_PORT),
 		Password: FC_REDIS_PASSWORD,
@@ -44,13 +46,12 @@ func main() {
 
 	fmt.Printf("MaxChecks: %d\n", FC_MAXCHECKS)
 
-	for i := 0; i < 20; i++ {
+	for i := 0; i < int(FC_MAXCHECKS)+1; i++ {
 		v, err := rfc.Check(ctx, 0)
 		if err != nil {
 			fmt.Println(err)
 		}
 		fmt.Println(v)
-		// time.Sleep(time.Millisecond * 5)
 	}
 }
 
