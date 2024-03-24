@@ -8,6 +8,3 @@ services:
       - '127.0.0.1:${FC_REDIS_PORT}:${FC_REDIS_PORT}'
     environment:
       REDIS_ARGS: "--requirepass ${FC_REDIS_PASSWORD}"
-
-
-    
