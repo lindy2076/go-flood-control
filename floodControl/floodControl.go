@@ -9,8 +9,6 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-var RedisTimeSeriesNil string = "ERR TSDB: the key does not exist"
-
 type RedisFloodController struct {
 	Client           *redis.Client
 	RetentionSeconds uint64
@@ -36,6 +34,9 @@ func (rfc *RedisFloodController) Check(ctx context.Context, userID int64) (bool,
 		}).Result()
 	if err != nil {
 		return false, err
+	}
+	if len(val) == 0 {
+		return true, fmt.Errorf("unexpected: no clicks at all")
 	}
 
 	var lastChunk redis.TSTimestampValue = val[0]
