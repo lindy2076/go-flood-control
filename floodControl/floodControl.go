@@ -15,6 +15,7 @@ type RedisFloodController struct {
 	MaxChecks        uint64
 }
 
+// Часы для возможности тестирования времени
 type Clock interface {
 	Now() time.Time
 }
