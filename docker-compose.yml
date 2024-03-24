@@ -6,5 +6,8 @@ services:
       - ./.env
     ports:
       - '127.0.0.1:${FC_REDIS_PORT}:${FC_REDIS_PORT}'
-    command: redis-server --requirepass ${FC_REDIS_PASSWORD}
+    environment:
+      REDIS_ARGS: "--requirepass ${FC_REDIS_PASSWORD}"
+
+
     
